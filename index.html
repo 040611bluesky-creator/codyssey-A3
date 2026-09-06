@@ -3,29 +3,167 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>집밥요정</title>
-  <!-- 나중에: 파비콘, 메타 설명, OG 태그 추가 -->
+  <title>집밥요정 — 냉장고 재료로 오늘 저녁 찾기</title>
+  <meta name="description" content="냉장고 속 재료를 넣으면 집밥 레시피를 추천해 주는 집밥요정">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- 나중에: 헤더(로고, 서비스 소개) -->
-  <header>
-    <h1>집밥요정</h1>
+  <header class="site-nav">
+    <div class="inner nav-inner">
+      <a class="logo" href="#main">
+        <span class="logo-mark" aria-hidden="true">🍚</span>
+        <span class="logo-text">집밥요정</span>
+      </a>
+      <nav aria-label="주요 메뉴">
+        <ul class="nav-links">
+          <li><a href="#main">메인</a></li>
+          <li><a href="#recommend">AI 추천</a></li>
+          <li><a href="#about">소개</a></li>
+        </ul>
+      </nav>
+    </div>
   </header>
 
   <main>
-    <!-- 나중에: 재료 입력 폼, 취향/인원 옵션, 추천 버튼 -->
-    <section id="ingredient-form">
-      <p>재료를 입력하면 레시피를 추천합니다.</p>
+    <section id="main" class="hero">
+      <div class="inner hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">AI 집밥 레시피 추천</p>
+          <h1>뭐 해 먹지? 고민은 요정에게</h1>
+          <p class="tagline">냉장고에 있는 재료로, 오늘 저녁을 정해 드려요</p>
+          <p class="lead">
+            집에 있는 재료만 알려 주세요. 인원과 취향에 맞춰
+            지금 바로 만들 수 있는 집밥 메뉴를 골라 줍니다.
+          </p>
+        </div>
+        <ul class="hero-points">
+          <li>재료 중심으로 메뉴 추천</li>
+          <li>인원·시간·맛 조절</li>
+          <li>남은 재료를 남기지 않기</li>
+        </ul>
+      </div>
     </section>
 
-    <!-- 나중에: 추천 결과 카드 목록 (로딩/에러 상태 포함) -->
-    <section id="recommend-result">
+    <section id="recommend" class="panel" aria-labelledby="form-title">
+      <div class="inner">
+        <h2 id="form-title">재료를 넣어 주세요</h2>
+        <p class="section-desc">엔터로 추가하거나, 자주 쓰는 재료를 눌러 담아 보세요.</p>
+
+        <form id="recommend-form">
+          <label class="field-label" for="ingredient-input">재료</label>
+          <div class="ingredient-box">
+            <ul id="ingredient-chips" class="chips" aria-live="polite"></ul>
+            <input
+              id="ingredient-input"
+              type="text"
+              name="ingredient"
+              placeholder="예: 계란, 대파, 김치"
+              autocomplete="off"
+            >
+          </div>
+
+          <p class="quick-label">자주 쓰는 재료</p>
+          <div class="quick-adds" role="group" aria-label="자주 쓰는 재료">
+            <button type="button" class="chip-btn" data-ingredient="계란">계란</button>
+            <button type="button" class="chip-btn" data-ingredient="대파">대파</button>
+            <button type="button" class="chip-btn" data-ingredient="김치">김치</button>
+            <button type="button" class="chip-btn" data-ingredient="밥">밥</button>
+            <button type="button" class="chip-btn" data-ingredient="두부">두부</button>
+            <button type="button" class="chip-btn" data-ingredient="양파">양파</button>
+            <button type="button" class="chip-btn" data-ingredient="마늘">마늘</button>
+            <button type="button" class="chip-btn" data-ingredient="돼지고기">돼지고기</button>
+          </div>
+
+          <div class="options">
+            <label class="field">
+              <span>몇 인분</span>
+              <select id="servings" name="servings">
+                <option value="1">1인분</option>
+                <option value="2" selected>2인분</option>
+                <option value="3">3인분</option>
+                <option value="4">4인분</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>조리 시간</span>
+              <select id="cook-time" name="cookTime">
+                <option value="15">15분 이내</option>
+                <option value="30" selected>30분 이내</option>
+                <option value="60">1시간 이내</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>오늘 입맛</span>
+              <select id="taste" name="taste">
+                <option value="담백">담백하게</option>
+                <option value="매콤" selected>매콤하게</option>
+                <option value="구수">구수하게</option>
+                <option value="든든">든든하게</option>
+              </select>
+            </label>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submit-btn">
+            레시피 추천받기
+          </button>
+        </form>
+      </div>
+
+      <div class="inner results-inner" aria-live="polite" aria-labelledby="result-title">
+        <h2 id="result-title">추천 메뉴</h2>
+
+        <div id="result-empty" class="state-card">
+          <p>아직 추천이 없어요. 재료를 넣고 버튼을 눌러 주세요.</p>
+        </div>
+
+        <div id="result-loading" class="state-card hidden">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>요정이 냉장고를 들여다보는 중…</p>
+        </div>
+
+        <div id="result-error" class="state-card error hidden" role="alert">
+          <p id="error-message">추천을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</p>
+        </div>
+
+        <ul id="recipe-list" class="recipe-grid hidden"></ul>
+      </div>
+    </section>
+
+    <section id="about" class="about" aria-labelledby="about-title">
+      <div class="inner">
+        <h2 id="about-title">소개</h2>
+        <p class="section-desc">집밥요정이 하는 일과, 쓰는 방법을 짧게 안내합니다.</p>
+
+        <div class="about-grid">
+          <article class="about-card">
+            <h3>서비스 소개</h3>
+            <p>
+              집밥요정은 냉장고에 있는 재료를 기준으로 오늘 만들 수 있는
+              집밥 메뉴를 추천하는 웹 서비스입니다. 인원, 조리 시간, 입맛을
+              함께 반영해 무리 없는 저녁을 고르는 데 도움을 줍니다.
+            </p>
+          </article>
+          <article class="about-card">
+            <h3>이용 방법</h3>
+            <ol class="howto">
+              <li>메인에서 서비스 소개를 확인합니다.</li>
+              <li>AI 추천에서 재료를 입력하거나 자주 쓰는 재료를 고릅니다.</li>
+              <li>인분, 시간, 입맛을 고른 뒤 레시피 추천받기를 누릅니다.</li>
+            </ol>
+          </article>
+        </div>
+      </div>
     </section>
   </main>
 
-  <!-- 나중에: 푸터(이용 안내, 출처) -->
-  <footer>
+  <footer class="site-footer">
+    <div class="inner">
+      <p>집밥요정 · 냉장고 재료 기반 레시피 추천</p>
+      <p class="muted">추천은 참고용이며, 알레르기와 보관 상태는 직접 확인해 주세요.</p>
+    </div>
   </footer>
 
   <script src="js/main.js"></script>
