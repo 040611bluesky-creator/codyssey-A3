@@ -38,17 +38,34 @@ function setView(view) {
   recipeList.classList.toggle("hidden", view !== "recipes");
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
 function renderRecipes(recipes) {
   recipeList.innerHTML = recipes
-    .map(
-      (recipe) => `
+    .map((recipe) => {
+      const name = escapeHtml(recipe.name || recipe.title || "추천 메뉴");
+      const items = Array.isArray(recipe.ingredients)
+        ? recipe.ingredients
+        : String(recipe.ingredients || "")
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean);
+      const ingredients = escapeHtml(items.join(", "));
+      const method = escapeHtml(recipe.method || recipe.steps || recipe.summary || "");
+      return `
         <li class="recipe-card">
-          <h3>${recipe.title}</h3>
-          <p class="recipe-meta">${recipe.time || ""} · ${recipe.servings || ""}</p>
-          <p>${recipe.summary || ""}</p>
+          <h3>${name}</h3>
+          <p class="recipe-meta">${ingredients}</p>
+          <p>${method}</p>
         </li>
-      `
-    )
+      `;
+    })
     .join("");
   setView("recipes");
 }
@@ -78,7 +95,7 @@ function init() {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (ingredients.length === 0) {
-      errorMessage.textContent = "재료를 하나 이상 넣어 주세요.";
+      errorMessage.textContent = "재료를 1개 이상 입력해주세요";
       setView("error");
       return;
     }
@@ -86,7 +103,7 @@ function init() {
     const payload = {
       ingredients: [...ingredients],
       servings: document.getElementById("servings").value,
-      cookTime: document.getElementById("cook-time").value,
+      time: document.getElementById("cook-time").value,
       taste: document.getElementById("taste").value,
     };
 
@@ -100,19 +117,21 @@ function init() {
         body: JSON.stringify(payload),
       });
 
+      const data = await response.json();
       if (!response.ok) {
-        throw new Error("recommend-failed");
+        throw new Error(data.error || "recommend-failed");
       }
 
-      const data = await response.json();
       const recipes = data.recipes || [];
       if (recipes.length === 0) {
         throw new Error("empty");
       }
       renderRecipes(recipes);
-    } catch {
+    } catch (error) {
       errorMessage.textContent =
-        "아직 추천 API가 연결되지 않았어요. 재료와 옵션은 준비됐으니, 다음에 요정이 레시피를 가져올 거예요.";
+        error.message && error.message !== "empty" && error.message !== "recommend-failed"
+          ? error.message
+          : "잠시 후 다시 시도해주세요";
       setView("error");
     } finally {
       submitBtn.disabled = false;
