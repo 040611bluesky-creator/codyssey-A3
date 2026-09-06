@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 집밥요정
 
 <!-- 나중에: 서비스 한 줄 소개, 주요 기능, 스크린샷 -->
@@ -27,3 +28,6 @@ js/main.js          # 프론트엔드 로직
 api/recommend.py    # 레시피 추천 API
 requirements.txt    # Python 의존성
 ```
+=======
+# codyssey-A3
+>>>>>>> 03768e5ca384e5bd5e9b385ea7a3d740d2af26ec
