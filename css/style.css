@@ -364,6 +364,7 @@ body {
   border-radius: 12px;
   border: 1px solid var(--line);
   background: var(--paper);
+  color: var(--ink);
 }
 
 .submit-btn {
