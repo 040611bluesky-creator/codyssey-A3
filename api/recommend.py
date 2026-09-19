@@ -9,6 +9,7 @@ GEMINI_MODEL = "gemini-3.6-flash"
 GEMINI_TIMEOUT_SECONDS = 20
 EMPTY_INGREDIENTS_MESSAGE = "재료를 1개 이상 입력해주세요"
 GEMINI_FAIL_MESSAGE = "잠시 후 다시 시도해주세요"
+NO_VALID_INGREDIENTS_MESSAGE = "입력하신 내용에서 사용할 수 있는 식재료를 찾지 못했어요. 재료를 다시 확인해 주세요"
 
 
 def _json_bytes(payload):
@@ -97,6 +98,8 @@ def _normalize_recipes(data):
             }
         )
 
+    if not normalized:
+        raise ValueError(NO_VALID_INGREDIENTS_MESSAGE)
     if len(normalized) < 2:
         raise RuntimeError("not enough recipes")
     return normalized[:3]
@@ -112,6 +115,10 @@ def _build_prompt(ingredients, servings, time, taste):
 인분: {servings}
 조리시간: {time}분 이내
 입맛: {taste}
+
+주의: 위 재료 중 실제 요리에 쓸 수 있는 식재료가 하나도 없다면
+(예: 전자제품, 자동차 등 음식과 무관한 단어만 있는 경우)
+억지로 요리를 만들어내지 말고 recipes를 빈 배열 []로 반환하세요.
 
 JSON만 반환하세요. 설명 문장이나 마크다운은 넣지 마세요.
 형식:
@@ -182,8 +189,4 @@ class handler(BaseHTTPRequestHandler):
         except ValueError as error:
             self._send_json(400, {"error": str(error)})
         except Exception as error:
-            print("recommend failed:", error)
-            self._send_json(500, {"error": GEMINI_FAIL_MESSAGE})
-
-    def log_message(self, format, *args):
-        return
+            print("recommend
