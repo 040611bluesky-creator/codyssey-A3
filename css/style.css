@@ -110,8 +110,9 @@ body {
 
 .logo-text {
   font-family: var(--display);
-  font-size: 1.8rem;
+  font-size: 1.3rem;
   letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .tagline {
@@ -449,4 +450,9 @@ body {
 
 .muted {
   color: #8a7d70;
+}
+@media (min-width: 720px) {
+  .logo-text {
+    font-size: 1.8rem;
+  }
 }
