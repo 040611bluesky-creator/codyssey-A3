@@ -38,6 +38,11 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 76px;
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 body {
@@ -318,8 +323,13 @@ body {
   border: 0;
   outline: none;
   background: transparent;
+  color: var(--ink);
   font: inherit;
   padding: 8px 4px;
+}
+
+#ingredient-input::placeholder {
+  color: var(--muted);
 }
 
 .quick-adds {
