@@ -5,7 +5,7 @@ from http.server import BaseHTTPRequestHandler
 
 import google.generativeai as genai
 
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-3.6-flash"
 GEMINI_TIMEOUT_SECONDS = 20
 EMPTY_INGREDIENTS_MESSAGE = "재료를 1개 이상 입력해주세요"
 GEMINI_FAIL_MESSAGE = "잠시 후 다시 시도해주세요"
