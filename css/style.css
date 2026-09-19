@@ -67,7 +67,8 @@ body {
   left: 0;
   right: 0;
   z-index: 100;
-  background: rgba(246, 239, 228, 0.94);
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
+  transition: background-color 0.3s ease;
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
