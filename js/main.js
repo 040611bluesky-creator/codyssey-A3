@@ -70,6 +70,36 @@ function renderRecipes(recipes) {
   setView("recipes");
 }
 
+function initThemeToggle() {
+  const toggleBtn = document.getElementById("theme-toggle");
+  if (!toggleBtn) return;
+
+  const root = document.documentElement;
+
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    toggleBtn.textContent = theme === "dark" ? "☀️" : "🌙";
+  }
+
+  let saved = "light";
+  try {
+    saved = localStorage.getItem("theme") || "light";
+  } catch (error) {
+    saved = "light";
+  }
+  applyTheme(saved);
+
+  toggleBtn.addEventListener("click", () => {
+    const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    applyTheme(next);
+    try {
+      localStorage.setItem("theme", next);
+    } catch (error) {
+      // 저장 실패해도 화면 전환은 정상 동작
+    }
+  });
+}
+
 function init() {
   input.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
@@ -139,4 +169,5 @@ function init() {
   });
 }
 
+initThemeToggle();
 init();

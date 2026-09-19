@@ -12,6 +12,21 @@
   --radius: 18px;
   --font: "Noto Sans KR", sans-serif;
   --display: "Jua", "Noto Sans KR", sans-serif;
+  --grad-top: #fff8ee;
+}
+
+:root[data-theme="dark"] {
+  --bg: #1b1712;
+  --paper: #241f19;
+  --ink: #f0e6d8;
+  --muted: #b8ab98;
+  --line: #3a3226;
+  --accent: #e8834a;
+  --accent-dark: #ffb385;
+  --sage: #7fae95;
+  --chip: #2f2820;
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --grad-top: #2a241c;
 }
 
 *,
@@ -31,9 +46,10 @@ body {
   font-family: var(--font);
   color: var(--ink);
   background:
-    radial-gradient(ellipse at top, #fff8ee 0%, var(--bg) 55%),
+    radial-gradient(ellipse at top, var(--grad-top) 0%, var(--bg) 55%),
     var(--bg);
   line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .hidden {
@@ -455,4 +471,23 @@ body {
   .logo-text {
     font-size: 1.8rem;
   }
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.08);
 }
