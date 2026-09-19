@@ -3,7 +3,8 @@ import os
 import re
 from http.server import BaseHTTPRequestHandler
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 GEMINI_MODEL = "gemini-3.6-flash"
 GEMINI_TIMEOUT_SECONDS = 20
@@ -160,17 +161,17 @@ def _recommend(payload):
     if not api_key:
         raise RuntimeError("missing GEMINI_API_KEY")
 
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel(
-        GEMINI_MODEL,
-        generation_config={
-            "temperature": 0.7,
-            "response_mime_type": "application/json",
-        },
+    client = genai.Client(
+        api_key=api_key,
+        http_options=types.HttpOptions(timeout=GEMINI_TIMEOUT_SECONDS * 1000),
     )
-    response = model.generate_content(
-        _build_prompt(ingredients, servings, time, taste),
-        request_options={"timeout": GEMINI_TIMEOUT_SECONDS},
+    response = client.models.generate_content(
+        model=GEMINI_MODEL,
+        contents=_build_prompt(ingredients, servings, time, taste),
+        config=types.GenerateContentConfig(
+            temperature=0.7,
+            response_mime_type="application/json",
+        ),
     )
     text = getattr(response, "text", "") or ""
     return _normalize_recipes(_extract_json(text))
