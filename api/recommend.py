@@ -108,17 +108,30 @@ def _normalize_recipes(data):
 def _build_prompt(ingredients, servings, time, taste):
     ingredient_text = ", ".join(ingredients)
     return f"""당신은 한국 집밥을 추천하는 요리사입니다.
-아래 조건에 맞는 레시피를 2개 또는 3개 추천하세요.
-주어진 재료를 최대한 쓰고, 꼭 필요한 재료만 추가하세요.
 
-재료: {ingredient_text}
+먼저 아래 입력 목록의 단어를 하나씩 확인하세요.
+입력: {ingredient_text}
+
+각 단어가 실제로 먹을 수 있는 식재료(채소, 고기, 해산물, 곡물, 유제품, 조미료 등)인지
+엄격하게 판단하세요. 전자제품, 자동차, 사물, 동물(반려동물 등 식재료가 아닌 것),
+추상적 단어는 식재료가 아닙니다.
+
+판단 결과 실제 식재료가 하나도 없다면, 절대로 레시피를 만들지 말고
+그 단어를 요리 이름/모양/비유/재료로 절대 사용하지 말고, 다음과 같이만 응답하세요:
+{{"recipes": []}}
+
+예시 (반드시 이렇게 처리):
+- 입력이 "전기차, 컴퓨터, 마우스" 인 경우 -> {{"recipes": []}}
+- 입력이 "컴퓨터" 인 경우 -> {{"recipes": []}}
+- 입력이 "강아지" 인 경우 -> {{"recipes": []}}
+
+실제 식재료가 1개 이상 있을 때만 아래 조건대로 레시피를 만드세요.
+그 경우 주어진 식재료를 최대한 쓰고, 꼭 필요한 재료만 추가하며,
+식재료가 아닌 단어는 완전히 무시하고 레시피에 절대 포함하지 마세요.
+
 인분: {servings}
 조리시간: {time}분 이내
 입맛: {taste}
-
-주의: 위 재료 중 실제 요리에 쓸 수 있는 식재료가 하나도 없다면
-(예: 전자제품, 자동차 등 음식과 무관한 단어만 있는 경우)
-억지로 요리를 만들어내지 말고 recipes를 빈 배열 []로 반환하세요.
 
 JSON만 반환하세요. 설명 문장이나 마크다운은 넣지 마세요.
 형식:
@@ -189,4 +202,8 @@ class handler(BaseHTTPRequestHandler):
         except ValueError as error:
             self._send_json(400, {"error": str(error)})
         except Exception as error:
-            print("recommend
+            print("recommend failed:", error)
+            self._send_json(500, {"error": GEMINI_FAIL_MESSAGE})
+
+    def log_message(self, format, *args):
+        return
