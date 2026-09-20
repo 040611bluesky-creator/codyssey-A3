@@ -7,7 +7,7 @@ from http.server import BaseHTTPRequestHandler
 from google import genai
 from google.genai import types
 
-GEMINI_MODEL = "gemini-3.6-flash"
+GEMINI_MODEL = "gemini-3.1-flash-lite"
 GEMINI_TIMEOUT_SECONDS = 20
 MAX_ATTEMPTS = 3
 RETRY_DELAY_SECONDS = 1.5
