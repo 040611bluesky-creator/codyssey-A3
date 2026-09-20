@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import time
 from http.server import BaseHTTPRequestHandler
 
 from google import genai
@@ -8,8 +9,11 @@ from google.genai import types
 
 GEMINI_MODEL = "gemini-3.6-flash"
 GEMINI_TIMEOUT_SECONDS = 20
+MAX_ATTEMPTS = 3
+RETRY_DELAY_SECONDS = 1.5
 EMPTY_INGREDIENTS_MESSAGE = "재료를 1개 이상 입력해주세요"
 GEMINI_FAIL_MESSAGE = "잠시 후 다시 시도해주세요"
+GEMINI_BUSY_MESSAGE = "지금 요청이 많아 AI가 바빠요. 잠시 후 다시 시도해주세요"
 NO_VALID_INGREDIENTS_MESSAGE = "입력하신 내용에서 사용할 수 있는 식재료를 찾지 못했어요. 재료를 다시 확인해 주세요"
 
 
@@ -99,7 +103,7 @@ def _normalize_recipes(data):
             }
         )
 
-       if not normalized:
+    if not normalized:
         raise ValueError(NO_VALID_INGREDIENTS_MESSAGE)
     return normalized[:3]
 
@@ -146,6 +150,32 @@ JSON만 반환하세요. 설명 문장이나 마크다운은 넣지 마세요.
 """
 
 
+def _is_rate_limited(error):
+    text = str(error)
+    return "429" in text or "RESOURCE_EXHAUSTED" in text
+
+
+def _call_gemini_with_retry(client, prompt):
+    last_error = None
+    for attempt in range(MAX_ATTEMPTS):
+        try:
+            return client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.7,
+                    response_mime_type="application/json",
+                ),
+            )
+        except Exception as error:
+            last_error = error
+            if _is_rate_limited(error) and attempt < MAX_ATTEMPTS - 1:
+                time.sleep(RETRY_DELAY_SECONDS * (attempt + 1))
+                continue
+            raise
+    raise last_error
+
+
 def _recommend(payload):
     ingredients = _normalize_ingredients(payload.get("ingredients"))
     if not ingredients:
@@ -163,14 +193,8 @@ def _recommend(payload):
         api_key=api_key,
         http_options=types.HttpOptions(timeout=GEMINI_TIMEOUT_SECONDS * 1000),
     )
-    response = client.models.generate_content(
-        model=GEMINI_MODEL,
-        contents=_build_prompt(ingredients, servings, time, taste),
-        config=types.GenerateContentConfig(
-            temperature=0.7,
-            response_mime_type="application/json",
-        ),
-    )
+    prompt = _build_prompt(ingredients, servings, time, taste)
+    response = _call_gemini_with_retry(client, prompt)
     text = getattr(response, "text", "") or ""
     return _normalize_recipes(_extract_json(text))
 
@@ -202,7 +226,8 @@ class handler(BaseHTTPRequestHandler):
             self._send_json(400, {"error": str(error)})
         except Exception as error:
             print("recommend failed:", error)
-            self._send_json(500, {"error": GEMINI_FAIL_MESSAGE})
+            message = GEMINI_BUSY_MESSAGE if _is_rate_limited(error) else GEMINI_FAIL_MESSAGE
+            self._send_json(500, {"error": message})
 
     def log_message(self, format, *args):
         return
