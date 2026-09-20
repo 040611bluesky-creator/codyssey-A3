@@ -99,10 +99,8 @@ def _normalize_recipes(data):
             }
         )
 
-    if not normalized:
+       if not normalized:
         raise ValueError(NO_VALID_INGREDIENTS_MESSAGE)
-    if len(normalized) < 2:
-        raise RuntimeError("not enough recipes")
     return normalized[:3]
 
 
